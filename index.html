@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Hoe schrijf jij?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#17272E; --ink-soft:#4B6069;
+    --paper:#F4F6F3; --card:#FFFFFF;
+    --jij:#2F6B57; --jij-licht:#E4EFE9;
+    --systeem:#9AAAB2; --systeem-licht:#EAEEF0;
+    --oker:#C8961E; --lijn:#D8DFDC;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Karla',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+  .balk{position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--lijn);}
+  .balk-inner{max-width:660px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px;}
+  .spoor{flex:1;height:4px;background:var(--systeem-licht);border-radius:100px;overflow:hidden;}
+  .vulling{height:100%;width:0;background:var(--jij);transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .teller{font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--systeem);white-space:nowrap;}
+  .bewaard{font-size:12px;color:var(--jij);opacity:0;transition:opacity .3s;white-space:nowrap;}
+  .bewaard.aan{opacity:1;}
+
+  .wrap{max-width:660px;margin:0 auto;padding:0 24px 120px;}
+  section.deel{display:none;}
+  section.deel.actief{display:block;animation:in .45s ease both;}
+  @keyframes in{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+
+  .kop{padding:52px 0 8px;}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--systeem);margin:0 0 18px;}
+  h1{font-family:'Petrona',Georgia,serif;font-weight:500;font-size:clamp(32px,7vw,46px);line-height:1.12;letter-spacing:-.015em;margin:0 0 20px;}
+  h1 em{font-style:italic;color:var(--jij);}
+  .lead{font-size:18px;color:var(--ink-soft);max-width:40ch;margin:0 0 14px;}
+
+  .tip{margin:34px 0 0;padding:22px 24px;background:var(--card);border-left:3px solid var(--oker);border-radius:3px;font-size:16px;color:var(--ink-soft);}
+  .tip strong{color:var(--ink);}
+  .tip p{margin:0;} .tip p+p{margin-top:12px;}
+
+  .vraag{margin:36px 0 0;}
+  .vraag > label,.vraag > .vlabel{display:block;font-family:'Petrona',Georgia,serif;font-size:21px;line-height:1.35;font-weight:500;margin:0 0 6px;}
+  .hint{font-size:15px;color:var(--systeem);margin:0 0 12px;}
+  .scenario{background:var(--card);border-radius:3px;padding:20px 22px;margin:0 0 12px;font-size:16px;color:var(--ink-soft);border-left:3px solid var(--jij-licht);}
+  .scenario strong{color:var(--ink);}
+
+  textarea,input[type=text]{width:100%;font-family:inherit;font-size:16px;line-height:1.55;color:var(--ink);
+    background:var(--card);border:1px solid var(--lijn);border-radius:3px;padding:13px 15px;resize:vertical;
+    transition:border-color .2s,box-shadow .2s;}
+  textarea{min-height:88px;}
+  textarea:focus,input[type=text]:focus{outline:none;border-color:var(--jij);box-shadow:0 0 0 3px var(--jij-licht);}
+  textarea::placeholder,input::placeholder{color:#B6C2C7;}
+
+  .paar{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin-top:14px;}
+  .paar button{font-family:inherit;font-size:16px;line-height:1.4;text-align:left;padding:15px 16px;
+    background:var(--card);border:1px solid var(--lijn);border-radius:3px;cursor:pointer;transition:all .15s;color:var(--ink);}
+  .paar button:hover{border-color:var(--systeem);}
+  .paar button.aan{background:var(--jij);border-color:var(--jij);color:#fff;}
+  .of{display:flex;align-items:center;font-size:13px;color:var(--systeem);font-style:italic;}
+
+  .keuzes{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .keuzes button{font-family:inherit;font-size:15px;padding:9px 14px;background:var(--card);
+    border:1px solid var(--lijn);border-radius:100px;cursor:pointer;transition:all .15s;color:var(--ink);}
+  .keuzes button:hover{border-color:var(--systeem);}
+  .keuzes button.aan{background:var(--jij);border-color:var(--jij);color:#fff;}
+
+  .nav{display:flex;gap:12px;align-items:center;margin-top:56px;padding-top:26px;border-top:1px solid var(--lijn);}
+  .knop{font-family:inherit;font-size:16px;font-weight:600;padding:14px 30px;border-radius:3px;
+    border:1px solid var(--jij);background:var(--jij);color:#fff;cursor:pointer;transition:opacity .15s;}
+  .knop:hover{opacity:.88;}
+  .knop.stil{background:transparent;color:var(--ink-soft);border-color:var(--lijn);}
+  .later{margin-left:auto;font-size:14px;color:var(--systeem);}
+
+  .slotkaart{margin-top:36px;padding:34px 30px;background:var(--jij);color:#fff;border-radius:3px;}
+  .slotkaart h2{font-family:'Petrona',Georgia,serif;font-weight:500;font-size:28px;margin:0 0 14px;}
+  .slotkaart p{margin:0 0 14px;opacity:.93;} .slotkaart p:last-child{margin-bottom:0;}
+  .knop.licht{background:#fff;color:var(--jij);border-color:#fff;margin-top:8px;}
+
+  @media (max-width:560px){
+    body{font-size:16px;} .wrap{padding:0 20px 100px;} .kop{padding:44px 0 4px;}
+    .paar{grid-template-columns:1fr;} .of{justify-content:center;padding:2px 0;}
+    .nav{flex-wrap:wrap;} .later{margin-left:0;flex:1 1 100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="balk"><div class="balk-inner">
+  <span class="teller" id="teller">1 / 6</span>
+  <div class="spoor"><div class="vulling" id="vulling"></div></div>
+  <span class="bewaard" id="bewaard">bewaard</span>
+</div></div>
+
+<div class="wrap">
+
+<!-- 1 -->
+<section class="deel actief" data-deel="1">
+  <div class="kop">
+    <p class="eyebrow">Deel 1 van 6</p>
+    <h1>Dit gaat over <em>hoe</em> je schrijft.</h1>
+    <p class="lead">Niet over wat je kunt. Dat weten we al.</p>
+  </div>
+  <div class="tip">
+    <p><strong>Eén regel, en het is een belangrijke:</strong> niet nadenken en niet nalezen.</p>
+    <p>Straks staan er een paar situaties waarin je iets moet schrijven. Schrijf op wat er als eerste in je opkomt, in twee of drie zinnen, en ga door. Niet verbeteren, niet netjes maken, spelfouten laten staan.</p>
+    <p>Zodra je je best gaat doen, klinkt het niet meer als jou — en dat is precies wat we hier nodig hebben. Een rommelig antwoord is bruikbaarder dan een mooi antwoord.</p>
+  </div>
+  <div class="nav"><button class="knop" data-naar="2">Oké, beginnen</button><span class="later">Ongeveer 25 minuten</span></div>
+</section>
+
+<!-- 2 -->
+<section class="deel" data-deel="2">
+  <div class="kop">
+    <p class="eyebrow">Deel 2 van 6 · het praktische</p>
+    <h1>Wat er <em>moet</em> kloppen</h1>
+    <p class="lead">Dit bepaalt welke banen we überhaupt laten zien. Wees streng — hier iets goedpraten kost je later een baan die niet past.</p>
+  </div>
+
+  <div class="vraag">
+    <label>Je hond. Hoe ziet een werkdag er dan uit?</label>
+    <p class="hint">Hoe lang kan ze alleen zijn, moet je tussendoor thuis zijn, is er opvang, en wat verandert er als je vier dagen op kantoor zou zitten?</p>
+    <textarea data-v="hond"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Je paard. Hoeveel dagen per week ben je op stal, en hoe laat?</label>
+    <p class="hint">Ochtend, avond, wisselend? En hoe lang ben je er dan ongeveer, inclusief heen en terug rijden?</p>
+    <textarea data-v="paard_dagen"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Hoe ver rijden is het, en doe je alles zelf?</label>
+    <p class="hint">Of is het een pensionstal waar dingen worden overgenomen als jij een keer niet kunt?</p>
+    <textarea data-v="paard_stal"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Wat gebeurt er in de winter?</label>
+    <p class="hint">Dit is de vraag die er het meest toe doet. In november is het om half vijf donker. Als je om vijf uur klaar bent en drie kwartier moet rijden, wat betekent dat dan voor het paard — en wat zou een werkgever daarvoor moeten regelen?</p>
+    <textarea data-v="paard_winter"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Hond én paard op één dag. Hoe ziet dat er praktisch uit?</label>
+    <p class="hint">Wat is de vroegste tijd dat je 's ochtends op kantoor kunt zijn, en de laatste tijd dat je weg moet? Wees eerlijk — dit bepaalt of een baan werkt of niet.</p>
+    <textarea data-v="dagindeling"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Hoeveel dagen per week wil je thuiswerken?</label>
+    <p class="hint">En is dat een wens of een harde eis?</p>
+    <textarea data-v="thuiswerken"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Maximale reistijd enkele reis — en waar ligt de grens écht?</label>
+    <p class="hint">Niet wat redelijk klinkt. Wat je over een half jaar nog steeds volhoudt.</p>
+    <textarea data-v="reistijd"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Waar gaat je geld heen?</label>
+    <p class="hint">Huur of hypotheek, de hond, het paard, auto, verzekeringen. Geen exacte bedragen nodig — het gaat om wat er maandelijks binnen moet komen zodat dat allemaal doorloopt.</p>
+    <textarea data-v="lasten"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Onder welk bedrag zeg je nee, ook als de baan leuk is?</label>
+    <textarea data-v="ondergrens"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Zijn er vaste momenten in je week die moeten blijven?</label>
+    <p class="hint">Stal, sport, afspraken, iets anders.</p>
+    <textarea data-v="vaste_momenten"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Overnachten voor werk, avonden, weekenden — wat kan wel en wat niet?</label>
+    <textarea data-v="weekenden"></textarea>
+  </div>
+
+  <div class="nav"><button class="knop stil" data-naar="1">Terug</button><button class="knop" data-naar="3">Verder</button></div>
+</section>
+
+<!-- 3 -->
+<section class="deel" data-deel="3">
+  <div class="kop">
+    <p class="eyebrow">Deel 3 van 6 · situaties</p>
+    <h1>Schrijf dit even <em>snel</em> op</h1>
+    <p class="lead">Twee of drie zinnen per stuk. Eerste ingeving. Niet nalezen.</p>
+  </div>
+  <div id="scenarios1"></div>
+  <div class="nav"><button class="knop stil" data-naar="2">Terug</button><button class="knop" data-naar="4">Verder</button></div>
+</section>
+
+<!-- 4 -->
+<section class="deel" data-deel="4">
+  <div class="kop">
+    <p class="eyebrow">Deel 4 van 6 · nog wat situaties</p>
+    <h1>En deze <em>ook</em> nog</h1>
+    <p class="lead">Zelfde afspraak. Snel, kort, niet mooi maken.</p>
+  </div>
+  <div id="scenarios2"></div>
+  <div class="nav"><button class="knop stil" data-naar="3">Terug</button><button class="knop" data-naar="5">Verder</button></div>
+</section>
+
+<!-- 5 -->
+<section class="deel" data-deel="5">
+  <div class="kop">
+    <p class="eyebrow">Deel 5 van 6 · klinkt dit als jou?</p>
+    <h1>Welke zou <em>jij</em> zeggen?</h1>
+    <p class="lead">Twee manieren om hetzelfde te zeggen. Klik degene die uit jouw mond zou komen. Snel doorklikken mag.</p>
+  </div>
+  <div id="paren"></div>
+  <div class="nav"><button class="knop stil" data-naar="4">Terug</button><button class="knop" data-naar="6">Verder</button></div>
+</section>
+
+<!-- 6 -->
+<section class="deel" data-deel="6">
+  <div class="kop">
+    <p class="eyebrow">Deel 6 van 6 · woorden</p>
+    <h1>Woorden waar je <em>jeuk</em> van krijgt</h1>
+    <p class="lead">Je bood het ooit zelf aan in een sollicitatiebrief. Nu maken we er gebruik van.</p>
+  </div>
+
+  <div class="vraag">
+    <span class="vlabel">Klik alles aan waar je van gaat kriebelen</span>
+    <p class="hint">Deze woorden komen dan nooit meer in iets terecht wat jouw naam draagt.</p>
+    <div class="keuzes" id="jeuk"></div>
+  </div>
+
+  <div class="vraag">
+    <label>Zijn er nog meer? Schrijf ze op.</label>
+    <textarea data-v="jeuk_extra" placeholder="Alles wat je irriteert in sollicitatietaal"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>En andersom: welke woorden of uitdrukkingen gebruik jij vaak?</label>
+    <p class="hint">Waar je vrienden je aan zouden herkennen. Ook als het nergens op slaat.</p>
+    <textarea data-v="eigen_woorden"></textarea>
+  </div>
+
+  <div class="vraag">
+    <label>Waar herkennen mensen jouw appjes aan?</label>
+    <p class="hint">Veel uitroeptekens? Spraakberichten? Korte zinnen? Emoji of juist nooit?</p>
+    <textarea data-v="appjes"></textarea>
+  </div>
+
+  <div class="slotkaart">
+    <h2>Dat was het.</h2>
+    <p>Klik hieronder en er wordt een bestand opgeslagen met alles wat je hebt ingevuld. Stuur dat door.</p>
+    <p>Vanaf dat moment schrijft alles wat je terugkrijgt een stuk meer zoals jij — en niet zoals een sollicitatiebrief hoort te klinken.</p>
+    <button class="knop licht" id="download">Sla mijn antwoorden op</button>
+  </div>
+
+  <div class="nav"><button class="knop stil" data-naar="5">Terug</button></div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var SLEUTEL="schrijfstijl_v1";
+  var data={velden:{},paren:{},jeuk:[]};
+
+  function laad(){try{var r=localStorage.getItem(SLEUTEL);if(r){var p=JSON.parse(r);for(var k in p){if(p[k])data[k]=p[k];}}}catch(e){}}
+  var t;
+  function bewaar(){
+    try{localStorage.setItem(SLEUTEL,JSON.stringify(data));}catch(e){return;}
+    var b=document.getElementById("bewaard");b.classList.add("aan");
+    clearTimeout(t);t=setTimeout(function(){b.classList.remove("aan");},1400);
+  }
+
+  var SC1=[
+    ["hond_beschrijven","Iemand die je hond nog nooit heeft gezien vraagt hoe ze is. Niet welk ras — hoe ze <strong>is</strong>.","Deze is belangrijker dan hij lijkt."],
+    ["irritatie","Je appt een vriendin over iets wat vandaag <strong>irritant</strong> was. Wat typ je?",""],
+    ["restaurant","Een collega vraagt om een goede tent in Den Haag. Je tikt het antwoord snel in.",""],
+    ["uitleg_kind","Een kind van zeven vraagt wat je voor werk doet. Wat zeg je?",""],
+    ["marktplaats","Je zet iets op Marktplaats waar je eigenlijk niet vanaf wil. Schrijf de advertentietekst.",""]
+  ];
+  var SC2=[
+    ["boze_mail","Een bestelling is voor de derde keer te laat. Je schrijft de klantenservice — geïrriteerd, maar je wilt wel dat het wordt opgelost.",""],
+    ["oneens","Iemand op je werk zegt iets waar je het niet mee eens bent, in de groepsapp. Hoe reageer je?",""],
+    ["waarom_weg","Een vriendin vraagt waarom je bij je vorige werk bent weggegaan. De <strong>echte</strong> versie, niet de sollicitatieversie.",""],
+    ["trots_moment","Vertel over iets op je werk waar je stiekem trots op was, alsof je het aan tafel vertelt.",""],
+    ["gelachen","Waar heb je deze week hardop om moeten lachen?",""]
+  ];
+
+  var PAREN=[
+    ["Ik ben er wel klaar mee.","Ik heb hier mijn bedenkingen bij."],
+    ["Dat werkte niet, dus ik heb het omgegooid.","Naar aanleiding van de resultaten heb ik de aanpak herzien."],
+    ["Eerlijk? Geen idee.","Daar kan ik op dit moment nog geen uitspraak over doen."],
+    ["Zullen we even bellen?","Ik verneem graag wanneer het u schikt."],
+    ["Dit was echt gaaf om te doen.","Dit was een zeer waardevolle ervaring."],
+    ["Ik snap dat dat gek klinkt.","Ik begrijp dat dit wellicht ongebruikelijk overkomt."],
+    ["Het ging mis. Dit heb ik ervan geleerd.","Er waren uitdagingen die ik heb omgezet in leermomenten."],
+    ["Ik wil dit gewoon heel graag.","Deze functie sluit naadloos aan bij mijn ambities."],
+    ["Daar heb ik geen verstand van.","Dat behoort niet tot mijn expertisegebied."],
+    ["We hebben er 1.800 mensen mee binnengehaald.","Wij realiseerden een bezoekersaantal van circa 1.800."]
+  ];
+
+  var JEUK=["gedreven","proactief","teamplayer","passie voor","hands-on","dynamische omgeving","nieuwe uitdaging","communicatief sterk","resultaatgericht","hierbij solliciteer ik","met veel enthousiasme","ik ben ervan overtuigd","stakeholder","meenemen in het proces","kortsluiten","even sparren","de juiste mindset","out of the box","korte lijntjes","gezellig team","hard werken en hard feesten","je komt bij ons in een familie"];
+
+  function bouwScenarios(box,lijst){
+    var el=document.getElementById(box);
+    lijst.forEach(function(s){
+      var v=document.createElement("div");v.className="vraag";
+      var sc=document.createElement("div");sc.className="scenario";sc.innerHTML=s[1];
+      v.appendChild(sc);
+      if(s[2]){var h=document.createElement("p");h.className="hint";h.textContent=s[2];v.appendChild(h);}
+      var ta=document.createElement("textarea");ta.setAttribute("data-v",s[0]);
+      v.appendChild(ta);el.appendChild(v);
+    });
+  }
+  bouwScenarios("scenarios1",SC1);
+  bouwScenarios("scenarios2",SC2);
+
+  var pb=document.getElementById("paren");
+  PAREN.forEach(function(p,i){
+    var v=document.createElement("div");v.className="vraag";
+    var g=document.createElement("div");g.className="paar";
+    [0,1].forEach(function(z){
+      var b=document.createElement("button");b.type="button";b.textContent=p[z];
+      if(data.paren[i]===z)b.classList.add("aan");
+      b.addEventListener("click",function(){
+        data.paren[i]=z;
+        Array.prototype.forEach.call(g.querySelectorAll("button"),function(x){x.classList.remove("aan");});
+        b.classList.add("aan");bewaar();
+      });
+      if(z===1){var o=document.createElement("span");o.className="of";o.textContent="of";g.appendChild(o);}
+      g.appendChild(b);
+    });
+    v.appendChild(g);pb.appendChild(v);
+  });
+
+  var jb=document.getElementById("jeuk");
+  JEUK.forEach(function(w){
+    var b=document.createElement("button");b.type="button";b.textContent=w;
+    if(data.jeuk.indexOf(w)>-1)b.classList.add("aan");
+    b.addEventListener("click",function(){
+      var i=data.jeuk.indexOf(w);
+      if(i>-1){data.jeuk.splice(i,1);b.classList.remove("aan");}
+      else{data.jeuk.push(w);b.classList.add("aan");}
+      bewaar();
+    });
+    jb.appendChild(b);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-v]"),function(el){
+    var k=el.getAttribute("data-v");
+    if(data.velden[k])el.value=data.velden[k];
+    el.addEventListener("input",function(){data.velden[k]=el.value;bewaar();});
+  });
+
+  var TOT=6;
+  function ga(n){
+    Array.prototype.forEach.call(document.querySelectorAll(".deel"),function(s){
+      s.classList.toggle("actief",s.getAttribute("data-deel")===String(n));});
+    document.getElementById("vulling").style.width=(n/TOT*100)+"%";
+    document.getElementById("teller").textContent=n+" / "+TOT;
+    window.scrollTo(0,0);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-naar]"),function(b){
+    b.addEventListener("click",function(){ga(parseInt(b.getAttribute("data-naar"),10));});
+  });
+
+  function schoon(h){return h.replace(/<[^>]+>/g,"");}
+
+  function tekst(){
+    var v=data.velden,r=[];
+    r.push("# Schrijfstijl en randvoorwaarden — Naomi");
+    r.push("Ingevuld op: "+new Date().toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"}));
+    r.push("");
+    r.push("> Dit bestand hoort in de kennisbank van het sollicitatieproject.");
+    r.push("> Deel 1 bepaalt welke vacatures überhaupt passen.");
+    r.push("> Deel 2 en 3 zijn schrijfmonsters: dit is haar echte stem, ongepolijst.");
+    r.push("> Gebruik ze om te toetsen of een concept als haar klinkt.");
+    r.push("");
+
+    r.push("## 1 · Randvoorwaarden");
+    [["Hond en werkdag","hond"],
+     ["Paard — dagen en tijdstip","paard_dagen"],
+     ["Paard — reisafstand en stal","paard_stal"],
+     ["Paard — de winter (harde beperking op werktijden)","paard_winter"],
+     ["Dagindeling hond + paard — vroegst op kantoor / laatst weg","dagindeling"],
+     ["Thuiswerken","thuiswerken"],["Maximale reistijd","reistijd"],
+     ["Maandelijkse lasten","lasten"],["Ondergrens salaris","ondergrens"],
+     ["Vaste momenten in de week","vaste_momenten"],["Avonden, weekenden, overnachten","weekenden"]].forEach(function(p){
+      r.push("**"+p[0]+"**");r.push(v[p[1]]||"_(niet ingevuld)_");r.push("");
+    });
+
+    r.push("## 2 · Schrijfmonsters");
+    r.push("_Ongepolijst en met opzet niet nagelezen. Dit is het doelregister._");
+    r.push("");
+    SC1.concat(SC2).forEach(function(s){
+      r.push("**Situatie:** "+schoon(s[1]));
+      r.push("");
+      r.push(v[s[0]]?"> "+v[s[0]].split("\n").join("\n> "):"_(niet ingevuld)_");
+      r.push("");
+    });
+
+    r.push("## 3 · Register");
+    r.push("_Links = informeel, rechts = formeel. Waar ze klikt, laat zien waar ze zit._");
+    r.push("");
+    var inf=0,fo=0;
+    PAREN.forEach(function(p,i){
+      var k=data.paren[i];
+      if(k===0||k===1){
+        if(k===0)inf++;else fo++;
+        r.push("- **"+p[k]+"**  _(niet: "+p[1-k]+")_");
+      }
+    });
+    r.push("");
+    if(inf+fo>0){
+      r.push("Score: **"+inf+" informeel / "+fo+" formeel**. "+
+        (inf>fo*2?"Sterk informeel — hou concepten los, kort en direct."
+         :fo>inf*2?"Neigt naar formeel — maar let op dat het niet in sollicitatietaal vervalt."
+         :"Gemengd — ze past zich aan de ontvanger aan. Volg de toon van het bedrijf."));
+      r.push("");
+    }
+
+    r.push("## 4 · Woorden");
+    r.push("**Nooit gebruiken — hier krijgt ze jeuk van:**");
+    r.push(data.jeuk.length?data.jeuk.map(function(x){return "- "+x;}).join("\n"):"_(niets aangeklikt)_");
+    r.push("");
+    r.push("**Meer daarvan:**");r.push(v.jeuk_extra||"_(niet ingevuld)_");r.push("");
+    r.push("**Woorden die ze zelf vaak gebruikt:**");r.push(v.eigen_woorden||"_(niet ingevuld)_");r.push("");
+    r.push("**Hoe haar appjes eruitzien:**");r.push(v.appjes||"_(niet ingevuld)_");
+
+    return r.join("\n");
+  }
+
+  document.getElementById("download").addEventListener("click",function(){
+    var blob=new Blob([tekst()],{type:"text/markdown;charset=utf-8"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");a.href=url;a.download="schrijfstijl-en-randvoorwaarden.md";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  });
+
+  laad();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-v]"),function(el){
+    var k=el.getAttribute("data-v");if(data.velden[k])el.value=data.velden[k];
+  });
+  ga(1);
+})();
+</script>
+</body>
+</html>
