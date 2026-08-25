@@ -81,7 +81,13 @@
   .slotkaart{margin-top:36px;padding:34px 30px;background:var(--jij);color:#fff;border-radius:3px;}
   .slotkaart h2{font-family:'Petrona',Georgia,serif;font-weight:500;font-size:28px;margin:0 0 14px;}
   .slotkaart p{margin:0 0 14px;opacity:.93;} .slotkaart p:last-child{margin-bottom:0;}
-  .knop.licht{background:#fff;color:var(--jij);border-color:#fff;margin-top:8px;}
+  .knop.licht{background:#fff;color:var(--jij);border-color:#fff;}
+  .knop.rand{background:transparent;color:#fff;border-color:rgba(255,255,255,.45);font-weight:500;padding:14px 22px;}
+  .knop.rand:hover{border-color:#fff;}
+  .slotknoppen{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+  .status{margin:18px 0 0!important;font-size:15px;min-height:1px;}
+  .status.goed{font-weight:600;}
+  .status.fout{background:rgba(255,255,255,.14);padding:14px 16px;border-radius:3px;}
 
   @media (max-width:560px){
     body{font-size:16px;} .wrap{padding:0 20px 100px;} .kop{padding:44px 0 4px;}
@@ -256,9 +262,13 @@
 
   <div class="slotkaart">
     <h2>Dat was het.</h2>
-    <p>Klik hieronder en er wordt een bestand opgeslagen met alles wat je hebt ingevuld. Stuur dat door.</p>
-    <p>Vanaf dat moment schrijft alles wat je terugkrijgt een stuk meer zoals jij — en niet zoals een sollicitatiebrief hoort te klinken.</p>
-    <button class="knop licht" id="download">Sla mijn antwoorden op</button>
+    <p>Klik hieronder om je antwoorden te versturen. Daarna ben je klaar.</p>
+    <div class="slotknoppen">
+      <button class="knop licht" id="verstuur">Versturen naar Yannick</button>
+      <button class="knop rand" id="kopieer">Kopieer alles</button>
+      <button class="knop rand" id="download">Download bestand</button>
+    </div>
+    <p class="status" id="status"></p>
   </div>
 
   <div class="nav"><button class="knop stil" data-naar="5">Terug</button></div>
@@ -439,12 +449,112 @@
     return r.join("\n");
   }
 
-  document.getElementById("download").addEventListener("click",function(){
-    var blob=new Blob([tekst()],{type:"text/markdown;charset=utf-8"});
+  // ---- n8n webhook. Leeg laten = alleen delen/kopieren/downloaden. ----
+  var WEBHOOK = "https://n8n.romaix-n8n.xyz/webhook/5076413a-0b03-480e-b46f-27901aa2c79c";
+
+  var statusEl=document.getElementById("status");
+  var vk=document.getElementById("verstuur");
+  var klaarGemeld=false;
+
+  function melding(t,soort){
+    statusEl.textContent=t;
+    statusEl.className="status"+(soort?" "+soort:"");
+  }
+  function gelukt(t){
+    klaarGemeld=true;
+    vk.textContent="Verstuurd";
+    vk.disabled=true;
+    melding(t,"goed");
+  }
+
+  function downloadNu(){
+    var blob=new Blob([tekst()],{type:"text/plain;charset=utf-8"});
     var url=URL.createObjectURL(blob);
-    var a=document.createElement("a");a.href=url;a.download="schrijfstijl-en-randvoorwaarden.md";
+    var a=document.createElement("a");a.href=url;a.download="schrijfstijl-naomi.txt";
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  }
+
+  function kopieerNu(stil){
+    var t=tekst();
+    function ok(){if(!stil)melding("Gekopieerd. Plak het in WhatsApp of een mailtje.","goed");}
+    function hard(){
+      var ta=document.createElement("textarea");
+      ta.value=t;ta.style.position="fixed";ta.style.opacity="0";
+      document.body.appendChild(ta);ta.select();
+      try{document.execCommand("copy");ok();}
+      catch(e){if(!stil)melding("Kopieren lukte niet. Gebruik dan Download bestand.","fout");}
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(ok).catch(hard);
+    }else{hard();}
+  }
+
+  document.getElementById("download").addEventListener("click",function(){
+    downloadNu();
+    melding("Bestand opgeslagen. Je vindt het bij je downloads.","goed");
+  });
+  document.getElementById("kopieer").addEventListener("click",function(){kopieerNu(false);});
+
+  // Laatste redmiddel: deelvenster van de telefoon, anders downloaden.
+  function terugvalDelen(){
+    var t=tekst();
+    if(navigator.share){
+      var gedaan=false;
+      try{
+        var f=new File([t],"schrijfstijl-naomi.txt",{type:"text/plain"});
+        if(navigator.canShare&&navigator.canShare({files:[f]})){
+          gedaan=true;
+          navigator.share({files:[f],title:"Mijn antwoorden"})
+            .then(function(){gelukt("Verstuurd. Bedankt!");})
+            .catch(function(){});
+        }
+      }catch(e){}
+      if(!gedaan){
+        navigator.share({title:"Mijn antwoorden",text:t})
+          .then(function(){gelukt("Verstuurd. Bedankt!");})
+          .catch(function(){});
+      }
+      melding("Kies hierboven WhatsApp of mail om het naar Yannick te sturen.");
+    }else{
+      downloadNu();
+      kopieerNu(true);
+      melding("Automatisch versturen lukte even niet. Je antwoorden zijn opgeslagen als bestand en staan ook op je klembord — stuur ze via WhatsApp of mail naar Yannick.","fout");
+    }
+  }
+
+  vk.addEventListener("click",function(){
+    if(klaarGemeld)return;
+    if(!WEBHOOK){terugvalDelen();return;}
+
+    vk.disabled=true;
+    melding("Bezig met versturen...");
+
+    var afgehandeld=false;
+    var timer=setTimeout(function(){
+      if(!afgehandeld){afgehandeld=true;vk.disabled=false;terugvalDelen();}
+    },12000);
+
+    fetch(WEBHOOK,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        naam:"Naomi",
+        ingevuld:new Date().toISOString(),
+        markdown:tekst(),
+        ruw:data
+      })
+    }).then(function(res){
+      if(afgehandeld)return;
+      afgehandeld=true;clearTimeout(timer);
+      if(res.ok){gelukt("Verstuurd. Je kunt dit venster sluiten. Bedankt!");}
+      else{vk.disabled=false;terugvalDelen();}
+    }).catch(function(){
+      if(afgehandeld)return;
+      afgehandeld=true;clearTimeout(timer);
+      vk.disabled=false;terugvalDelen();
+    });
   });
 
   laad();
